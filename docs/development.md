@@ -29,3 +29,13 @@ Aplikacija je kompletirana, lokalizirana, vizualno polirana i koristi asinkrono 
 - [x] Napredni filteri
 - [ ] Batch processing (obrada više slika odjednom)
 - [ ] Undo/Redo funkcionalnost
+- [ ] Dodavanje ikona za alate.
+- [ ] Poboljšanje rasporeda (Layout) za još moderniji izgled.
+
+---
+
+> *"Nije da se ne usuđujemo jer su stvari teške, već su stvari teške jer se ne usuđujemo."*  
+> — **Seneka**
+
+**Pozdrav ekipi s tečaja! 👋**  
+Konstruktivno rješavanje problema je put do majstorstva. Sretno svima! 🚀
