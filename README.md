@@ -73,3 +73,6 @@ python py_photoshop_pyzer.py
 
 ## 👨💻 Autor
 Created by PyZ3R @ Algebra 2026. Based on concepts from Algebra Python Developer modules.
+
+## 💡 Inspiracija
+* **CustomTkinter**: [TomSchimansky/CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) - Moderni UI framework za Python.
