@@ -21,7 +21,8 @@ Ova verzija (**PyZ3R Edition**) predstavlja potpunu modernizaciju originalne skr
 * **Filteri:** Implementirani Pillow filteri: *Blur, Contour, Emboss, Sharpen, Black & White*.
 * **Live Enhancements:** Klizači (Sliders) za podešavanje svjetline (Brightness) i kontrasta u stvarnom vremenu.
 
-### 3. 🧠 Pametna Logika ("The IF Loop")
+### 3. 🧠 Pametna Logika 
+
 Implementirana je ključna logika za optimizaciju učitavanja slika:
 * Aplikacija provjerava širinu slike pri učitavanju.
 * **IF uvjet:** `if img.width > 2000:` -> Slika se automatski smanjuje (resize) uz zadržavanje omjera (aspect ratio) koristeći `LANCZOS` filter za kvalitetu.
