@@ -1,5 +1,12 @@
 # Changelog
 
+## [v1.5] - 2026-01-28
+### Promjene
+- **Ikone:** Dodana podrška za Material Design ikone (PNG) umjesto tekstualnih gumba za moderniji izgled.
+- **UI Layout:** Gumbi "Otvori", "Spremi" i "Reset" su sada poravnati u jednom redu.
+- **Dizajn:** Zamijenjen tekstualni separator s vizualnom linijom i poboljšan prikaz informacija o slici (centrirano, bold).
+- **Bug Fix:** Riješen `AttributeError` pri pokretanju uzrokovan krivim redoslijedom učitavanja ikona.
+
 ## [v1.4] - 2026-01-28
 ### Promjene
 - **Asinkronost:** Implementirano asinkrono učitavanje slika (`threading`) kako se sučelje ne bi smrzavalo tijekom obrade velikih datoteka.

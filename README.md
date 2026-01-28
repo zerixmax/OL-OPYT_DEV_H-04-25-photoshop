@@ -13,6 +13,7 @@ Ova verzija (**PyZ3R Edition**) predstavlja potpunu modernizaciju originalne skr
 ### 1. Moderno UI Sučelje (CustomTkinter)
 * **Dark/Light Mode:** Ugrađena podrška za teme (default: Dark Blue).
 * **Tabovi (Tabview):** Alati su organizirani u logičke cjeline ("Datoteka", "Uređivanje", "Efekti") radi preglednosti.
+* **Ikone:** Korištenje intuitivnih Material Design ikona umjesto tekstualnih gumba.
 * **Responzivnost:** Sučelje se prilagođava veličini prozora.
 
 ### 2. Napredna Obrada Slika (Pillow)
@@ -69,6 +70,7 @@ python py_photoshop_pyzer.py
 ## 📂 Struktura Koda
 * `py_photoshop_pyzer.py` - Glavna izvršna datoteka (sadrži App klasu).
 * `images/` - Mapa za testne slike.
+* `images/icons/` - Mapa s ikonicama za GUI (Light i Dark mode verzije).
 * `docs/` - Dokumentacija razvoja (changelog, status implementacije).
 * `README.md` - Dokumentacija projekta.
 

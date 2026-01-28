@@ -92,6 +92,9 @@ class PhotoshopApp(ctk.CTk):
         self._loading_error = None      # Ovdje dretva ostavlja grešku
         self.current_image = None       # Referenca na CTkImage da ga GC ne pojede
         
+        # Učitaj ikone (PRIJE kreiranja UI-a!)
+        self._load_icons()
+
         self._create_ui()
 
         # Učitaj defaultnu sliku ako postoji
@@ -101,13 +104,38 @@ class PhotoshopApp(ctk.CTk):
 
     def print_startup_signature(self):
         """Ispisuje PyZ3R ASCII art u zelenoj boji u konzolu."""
-        init(autoreset=True)
-        GREEN = Fore.GREEN
-        RESET = Style.RESET_ALL
-        print("="*60)
-        print(GREEN + self.ascii_signature_text + RESET)
-        print(f"{GREEN}Created by: PyZ3R @ Algebra 2026{RESET}")
-        print("="*60)
+        try:
+            init(autoreset=True)
+            GREEN = Fore.GREEN
+            RESET = Style.RESET_ALL
+            print("="*60)
+            print(GREEN + self.ascii_signature_text + RESET)
+            print(f"{GREEN}Created by: PyZ3R @ Algebra 2026{RESET}")
+            print("="*60)
+        except:
+            pass
+
+    def _load_icons(self):
+        """Učitava ikone iz images/icons foldera."""
+        self.icons = {}
+        icon_names = ["folder_open", "save", "refresh", "rotate_left", "rotate_right", "swap_horiz"]
+        
+        for name in icon_names:
+            try:
+                # Putanje do ikona (black = za light mode, white = za dark mode)
+                path_black = f"./images/icons/{name}_black.png"
+                path_white = f"./images/icons/{name}_white.png"
+                
+                if os.path.exists(path_black) and os.path.exists(path_white):
+                    self.icons[name] = ctk.CTkImage(
+                        light_image=Image.open(path_black),
+                        dark_image=Image.open(path_white),
+                        size=(20, 20)
+                    )
+                else:
+                    print(f"Warning: Icon {name} not found at {path_black}")
+            except Exception as e:
+                print(f"Error loading icon {name}: {e}")
 
     def _create_ui(self):
         """Kreira sve GUI elemente aplikacije."""
@@ -126,7 +154,7 @@ class PhotoshopApp(ctk.CTk):
         self.frm_tools.grid(row=0, column=1, sticky="nsew", padx=(0, 15), pady=15)
         
         # Naslov Alata
-        ctk.CTkLabel(self.frm_tools, text="PyZ3R LAB", font=("Roboto", 24, "bold"), text_color="#3B8ED0").pack(pady=(20, 10))
+        ctk.CTkLabel(self.frm_tools, text="Photo Editor", font=("Roboto", 24, "bold"), text_color="#3B8ED0").pack(pady=(20, 10))
 
         # TABS (Kartice)
         self.tabs = ctk.CTkTabview(self.frm_tools)
@@ -153,18 +181,29 @@ class PhotoshopApp(ctk.CTk):
     def _setup_tab_main(self):
         """Postavlja elemente na tabu 'Glavno'."""
         tab = self.tabs.tab("Glavno")
-        ctk.CTkButton(tab, text="📂 Otvori Sliku", command=self.open_file, height=40).pack(pady=10, fill="x")
-        ctk.CTkButton(tab, text="💾 Spremi Kao...", command=self.save_file, fg_color="green", height=40).pack(pady=10, fill="x")
-        ctk.CTkButton(tab, text="↺ Resetiraj Sve", command=self.reset_image, fg_color="#C0392B", height=40).pack(pady=10, fill="x")
+        btn_frame = ctk.CTkFrame(tab, fg_color="transparent")
+        btn_frame.pack(fill="x", pady=10)
+
+        # Dohvati ikone sigurno (get vraca None ako nema kljuca, ali CTkButton handlea image=None ok, samo nema slike)
+        icon_open = self.icons.get("folder_open")
+        icon_save = self.icons.get("save")
+        icon_reset = self.icons.get("refresh")
+
+        ctk.CTkButton(btn_frame, text="Otvori", image=icon_open, command=self.open_file, height=40).pack(side="left", padx=5, expand=True, fill="x")
+        ctk.CTkButton(btn_frame, text="Spremi", image=icon_save, command=self.save_file, fg_color="green", height=40).pack(side="left", padx=5, expand=True, fill="x")
+        ctk.CTkButton(btn_frame, text="Reset", image=icon_reset, command=self.reset_image, fg_color="#C0392B", height=40).pack(side="left", padx=5, expand=True, fill="x")
         
-        ctk.CTkLabel(tab, text="-----------------").pack(pady=10)
+
+        # Separator (kao <hr>)
+        ctk.CTkFrame(tab, height=2, fg_color=("gray70", "gray30")).pack(fill="x", padx=10, pady=20)
         
         self.switch_mode = ctk.CTkSwitch(tab, text="Dark Mode", command=self.toggle_mode)
         self.switch_mode.select()
         self.switch_mode.pack(pady=10)
         
-        self.lbl_info = ctk.CTkLabel(tab, text="", justify="left", font=("Consolas", 11))
-        self.lbl_info.pack(pady=20, anchor="w")
+        # Info labela - Centrirana i podebljana
+        self.lbl_info = ctk.CTkLabel(tab, text="", justify="center", font=("Roboto", 13, "bold"))
+        self.lbl_info.pack(pady=10)
 
     def _setup_tab_edit(self):
         """Postavlja elemente na tabu 'Edit'."""
@@ -173,11 +212,16 @@ class PhotoshopApp(ctk.CTk):
         
         rot_frame = ctk.CTkFrame(tab, fg_color="transparent")
         rot_frame.pack(fill="x")
-        ctk.CTkButton(rot_frame, text="⟲ Lijevo", width=80, command=lambda: self.rotate("left")).pack(side="left", padx=5, expand=True)
-        ctk.CTkButton(rot_frame, text="Desno ⟳", width=80, command=lambda: self.rotate("right")).pack(side="right", padx=5, expand=True)
+        
+        icon_left = self.icons.get("rotate_left")
+        icon_right = self.icons.get("rotate_right")
+        icon_flip = self.icons.get("swap_horiz")
+
+        ctk.CTkButton(rot_frame, text="Lijevo", image=icon_left, width=80, command=lambda: self.rotate("left")).pack(side="left", padx=5, expand=True)
+        ctk.CTkButton(rot_frame, text="Desno", image=icon_right, width=80, command=lambda: self.rotate("right")).pack(side="right", padx=5, expand=True)
 
         ctk.CTkLabel(tab, text="Zrcaljenje", font=("Roboto", 14, "bold")).pack(pady=(20, 5))
-        ctk.CTkButton(tab, text="↔ Zrcali Vodoravno", command=self.flip_horizontal).pack(fill="x")
+        ctk.CTkButton(tab, text="Zrcali Vodoravno", image=icon_flip, command=self.flip_horizontal).pack(fill="x")
 
     def _setup_tab_effects(self):
         """Postavlja elemente na tabu 'Efekti'."""

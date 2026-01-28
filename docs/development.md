@@ -2,14 +2,15 @@
 
 Ovaj direktorij sadrži dokumentaciju o razvoju aplikacije.
 
-## Status Implementacije (v1.4)
-Aplikacija je kompletirana, lokalizirana, vizualno polirana i koristi asinkrono učitavanje.
+## Status Implementacije (v1.5)
+Aplikacija je kompletirana, lokalizirana, vizualno polirana i koristi asinkrono učitavanje. Dodana je podrška za ikone i poboljšan je raspored gumba.
 
 ### 1. Osnovna Konfiguracija
 - **GUI Framework**: `customtkinter`.
 - **Jezik Sučelja**: Hrvatski.
 - **Potpis**: ASCII Art integriran u **konzolu** (PyFiglet + Colorama) i **GUI** (Monospaced font u footeru).
 - **Asinkronost**: Koristi `threading` za učitavanje slika.
+- **Ikone**: Koristi Material Design ikone (PNG) s podrškom za Light/Dark mode.
 
 ### 2. Funkcionalnosti
 - **Učitavanje Slika**: Defaultno učitava `IMG_0630.JPG`.
@@ -29,8 +30,8 @@ Aplikacija je kompletirana, lokalizirana, vizualno polirana i koristi asinkrono 
 - [x] Napredni filteri
 - [ ] Batch processing (obrada više slika odjednom)
 - [ ] Undo/Redo funkcionalnost
-- [ ] Dodavanje ikona za alate.
-- [ ] Poboljšanje rasporeda (Layout) za još moderniji izgled.
+- [x] Dodavanje ikona za alate.
+- [x] Poboljšanje rasporeda (Layout) za još moderniji izgled.
 
 ---
 
