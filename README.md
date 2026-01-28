@@ -21,8 +21,8 @@ Ova verzija (**PyZ3R Edition**) predstavlja potpunu modernizaciju originalne skr
 * **Filteri:** Implementirani Pillow filteri: *Blur, Contour, Emboss, Sharpen, Black & White*.
 * **Live Enhancements:** Klizači (Sliders) za podešavanje svjetline (Brightness) i kontrasta u stvarnom vremenu.
 
-### 3. 🧠 Pametna Logika (Exam Task: "The IF Loop")
-Implementirana je ključna logika za optimizaciju učitavanja slika koja je bila naglašena na predavanjima:
+### 3. 🧠 Pametna Logika ("The IF Loop")
+Implementirana je ključna logika za optimizaciju učitavanja slika:
 * Aplikacija provjerava širinu slike pri učitavanju.
 * **IF uvjet:** `if img.width > 2000:` -> Slika se automatski smanjuje (resize) uz zadržavanje omjera (aspect ratio) koristeći `LANCZOS` filter za kvalitetu.
 * **ELSE:** Ako je slika manja, ostaje u originalnoj rezoluciji.
@@ -46,8 +46,8 @@ Projekt zahtijeva Python 3.10+ i nekoliko vanjskih biblioteka.
 
 ### 1. Kloniranje i Priprema
 ```bash
-git clone https://github.com/tvoj-username/pyzer-photoshop.git
-cd pyzer-photoshop
+git clone https://github.com/zerixmax/OL-OPYT_DEV_H-04-25-photoshop.git
+cd OL-OPYT_DEV_H-04-25-photoshop
 python -m venv venv
 ```
 
@@ -68,6 +68,7 @@ python py_photoshop_pyzer.py
 ## 📂 Struktura Koda
 * `py_photoshop_pyzer.py` - Glavna izvršna datoteka (sadrži App klasu).
 * `images/` - Mapa za testne slike.
+* `docs/` - Dokumentacija razvoja (changelog, status implementacije).
 * `README.md` - Dokumentacija projekta.
 
 ## 👨💻 Autor
