@@ -2,8 +2,8 @@
 
 Ovaj direktorij sadrži dokumentaciju o razvoju aplikacije.
 
-## Status Implementacije (v2.0)
-Aplikacija je kompletirana, lokalizirana, vizualno polirana i koristi asinkrono učitavanje. U verziji 2.0 uveden je potpuni redizajn sučelja s bočnim izbornikom (Sidebar).
+## Status Implementacije (v2.1)
+Aplikacija je kompletirana, lokalizirana, vizualno polirana i koristi asinkrono učitavanje. Verzija 2.0 uvodi potpuni redizajn sučelja s bočnim izbornikom (Sidebar). **Verzija 2.1 donosi kritične popravke EXE distribucije** - aplikacija se sada može pokrenuti kao standalone `.exe` bez instalacije Pythona.
 
 ### 1. Osnovna Konfiguracija
 - **GUI Framework**: `customtkinter`.

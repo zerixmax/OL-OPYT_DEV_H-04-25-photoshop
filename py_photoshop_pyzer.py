@@ -84,7 +84,7 @@ class PhotoshopApp(ctk.CTk):
         self.print_startup_signature()
 
         # Konfiguracija prozora
-        self.title("Algebra Python Photoshop - PyZ3R Edition 2026")
+        self.title("PyZ3R Photoshop v2.1 - Algebra 2026")
         self.geometry("1200x850")
         
         # Grid layout (Lijevo slika, Desno alati)
