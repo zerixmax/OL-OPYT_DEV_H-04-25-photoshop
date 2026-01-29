@@ -5,6 +5,10 @@
 - **Napredna Navigacija (Sidebar):** Potpuni redizajn sučelja! Kartice (tabovi) su zamijenjene modernim bočnim izbornikom (Sidebar).
 - **Profesionalni Layout:** Alati se sada dinamički učitavaju u bočni panel, ostavljajući više prostora za prikaz slike.
 - **Optimizacija:** Kod refaktoriran za bolju modularnost (Frame-based architecture).
+- **Watermark (NOVO):** Dodan gumb za automatsko dodavanje "PyZ3R Edition" potpisa na slike.
+- **UI Scaling (NOVO):** Mogućnost skaliranja sučelja (80-120%) za prilagodbu različitim ekranima.
+- **Standalone EXE:** Aplikacija je kompajlirana u jednu .EXE datoteku za jednostavnu distribuciju.
+  > **NAPOMENA:** U ovoj verziji (v2.0) prijavljen je problem s pokretanjem .EXE datoteke. Preporučuje se pokretanje iz izvornog koda (`python py_photoshop_pyzer.py`) dok se problem ne otkloni.
 
 ## [v1.7] - 2026-01-29
 ### Promjene

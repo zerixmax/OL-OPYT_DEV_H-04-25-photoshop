@@ -14,7 +14,7 @@ from tkinter import filedialog, messagebox
 
 # Third-party imports
 import customtkinter as ctk
-from PIL import Image, ImageTk, ImageOps, ImageEnhance, ImageFilter
+from PIL import Image, ImageTk, ImageOps, ImageEnhance, ImageFilter, ImageDraw, ImageFont
 
 # --- FIX: Windows Tcl/Tk Environment ---
 # Automatski postavlja putanje do Tcl/Tk biblioteka na Windowsima kako bi se izbjegao "TclError"
@@ -171,16 +171,26 @@ class PhotoshopApp(ctk.CTk):
             btn.grid(row=i+1, column=0, sticky="ew")
             self.nav_buttons[name] = btn
             
+        # UI Scaling Option
+        self.lbl_scaling = ctk.CTkLabel(self.sidebar_frame, text="UI Scaling:", anchor="w")
+        self.lbl_scaling.grid(row=10, column=0, padx=20, pady=(10, 0))
+        self.scaling_optionemenu = ctk.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%"],
+                                                     command=self.change_scaling_event)
+        self.scaling_optionemenu.grid(row=11, column=0, padx=20, pady=(2, 10))
+        self.scaling_optionemenu.set("100%")
+
         # Footer u Sidebar-u
+        self.lbl_appearence = ctk.CTkLabel(self.sidebar_frame, text="Tema:", anchor="w")
+        self.lbl_appearence.grid(row=12, column=0, padx=20, pady=(10, 0))
         self.appearance_mode_menu = ctk.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
                                                       command=self.change_appearance_mode_event)
-        self.appearance_mode_menu.grid(row=11, column=0, padx=20, pady=10, sticky="s")
+        self.appearance_mode_menu.grid(row=13, column=0, padx=20, pady=(2, 10), sticky="s")
         self.appearance_mode_menu.set("Dark")
         
         # ASCII ART Footer
         self.lbl_ascii_footer = ctk.CTkLabel(self.sidebar_frame, text=self.ascii_signature_text,
                                              font=("Courier", 6), text_color="#2CC985", justify="left")
-        self.lbl_ascii_footer.grid(row=12, column=0, padx=5, pady=(0, 10))
+        self.lbl_ascii_footer.grid(row=14, column=0, padx=5, pady=(0, 10))
 
 
         # === 2. MAIN AREA (Desno) ===
@@ -223,6 +233,10 @@ class PhotoshopApp(ctk.CTk):
 
     def change_appearance_mode_event(self, new_appearance_mode):
         ctk.set_appearance_mode(new_appearance_mode)
+        
+    def change_scaling_event(self, new_scaling: str):
+        new_scaling_float = int(new_scaling.replace("%", "")) / 100
+        ctk.set_widget_scaling(new_scaling_float)
 
     # --- IMPLEMENTACIJA NOVIH METODA ZA FRAMEOVE ---
     def _setup_frame_main(self, parent):
@@ -264,6 +278,10 @@ class PhotoshopApp(ctk.CTk):
         self.slider_contrast = ctk.CTkSlider(parent, from_=0.1, to=2.0, command=self.update_enhancements)
         self.slider_contrast.set(1.0)
         self.slider_contrast.pack(fill="x", pady=5)
+        
+        # Watermark
+        ctk.CTkLabel(parent, text="Branding", font=("Roboto", 12)).pack(pady=(15, 0))
+        ctk.CTkButton(parent, text="💧 Dodaj Vodeni Žig", command=self.add_watermark, fg_color="#2980B9").pack(fill="x", pady=5)
 
     def _setup_frame_export(self, parent):
         ctk.CTkLabel(parent, text="WebP Export", font=("Roboto", 14, "bold")).pack(pady=(10, 5))
@@ -548,6 +566,41 @@ class PhotoshopApp(ctk.CTk):
             self.lbl_image.configure(image=self.current_image)
 
     # --- BATCH CALLBACKS ---
+
+    def add_watermark(self):
+        if not self.processed_image: return
+
+        # Kreiramo objekt za crtanje
+        img_copy = self.processed_image.copy()
+        draw = ImageDraw.Draw(img_copy)
+        
+        # Tekst i pozicija (dolje desno)
+        text = "PyZ3R Edition"
+        
+        # Pokušaj naći neki font, inače koristi default
+        try:
+            # Za Windows često radi arial.ttf
+            font = ImageFont.truetype("arial.ttf", 36) 
+        except:
+            font = ImageFont.load_default()
+
+        # Izračunaj poziciju
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+        
+        x = img_copy.width - text_width - 20
+        y = img_copy.height - text_height - 20
+        
+        # Crtanje teksta (s crnim obrubom za čitljivost)
+        draw.text((x+2, y+2), text, font=font, fill="black") # Sjena
+        draw.text((x, y), text, font=font, fill="#2CC985")   # Zeleni tekst
+        
+        self.save_state() # Spremi stanje prije izmjene (da radi Undo)
+        self.processed_image = img_copy
+        self._update_display()
+        print("[INFO] Dodan vodeni žig.")
+
     def select_batch_input(self):
         path = filedialog.askdirectory()
         if path:
