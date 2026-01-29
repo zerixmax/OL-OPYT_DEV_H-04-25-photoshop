@@ -1,5 +1,23 @@
 # Changelog
 
+## [v2.0] - 2026-01-29
+### Promjene
+- **Napredna Navigacija (Sidebar):** Potpuni redizajn sučelja! Kartice (tabovi) su zamijenjene modernim bočnim izbornikom (Sidebar).
+- **Profesionalni Layout:** Alati se sada dinamički učitavaju u bočni panel, ostavljajući više prostora za prikaz slike.
+- **Optimizacija:** Kod refaktoriran za bolju modularnost (Frame-based architecture).
+
+## [v1.7] - 2026-01-29
+### Promjene
+- **Batch Processing:** Masovna obrada slika! Dodan novi tab gdje možete odabrati mapu i konvertirati SVE slike u WebP, JPG ili PNG jednim klikom. Podržava automatsko smanjivanje (resize) i računa ukupnu uštedu prostora.
+- **Undo/Redo:** Dodana povijest promjena. Sada možete poništiti greške (gumb ⟲ Undo) i vratiti poništeno (gumb ⟳ Redo). Povijest pamti zadnjih 10 koraka.
+- **UI:** Dodani gumbi za Undo/Redo u glavni alatni okvir.
+
+## [v1.6] - 2026-01-29
+### Promjene
+- **WebP Optimizer:** Dodan novi tab "Export" sa sliderom za kontrolu kvalitete kompresije.
+- **Statistika:** Aplikacija sada računa i prikazuje uštedu veličine datoteke (KB/MB) nakon konverzije u WebP.
+- **Info:** Dodan prikaz veličine trenutno učitane datoteke u panelu s informacijama.
+
 ## [v1.5] - 2026-01-28
 ### Promjene
 - **Ikone:** Dodana podrška za Material Design ikone (PNG) umjesto tekstualnih gumba za moderniji izgled.

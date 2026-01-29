@@ -2,8 +2,8 @@
 
 Ovaj direktorij sadrži dokumentaciju o razvoju aplikacije.
 
-## Status Implementacije (v1.5)
-Aplikacija je kompletirana, lokalizirana, vizualno polirana i koristi asinkrono učitavanje. Dodana je podrška za ikone i poboljšan je raspored gumba.
+## Status Implementacije (v2.0)
+Aplikacija je kompletirana, lokalizirana, vizualno polirana i koristi asinkrono učitavanje. U verziji 2.0 uveden je potpuni redizajn sučelja s bočnim izbornikom (Sidebar).
 
 ### 1. Osnovna Konfiguracija
 - **GUI Framework**: `customtkinter`.
@@ -28,10 +28,16 @@ Aplikacija je kompletirana, lokalizirana, vizualno polirana i koristi asinkrono 
 - [x] Osnovna obrada slika (PIL)
 - [x] Korisničko sučelje (GUI)
 - [x] Napredni filteri
-- [ ] Batch processing (obrada više slika odjednom)
-- [ ] Undo/Redo funkcionalnost
+- [x] Batch processing (obrada više slika odjednom)
+- [x] Undo/Redo funkcionalnost
 - [x] Dodavanje ikona za alate.
 - [x] Poboljšanje rasporeda (Layout) za još moderniji izgled.
+
+### 3. Ideje za Version 2.0 (The "Pro" Update)
+- [ ] **Watermark (Vodeni Žig):** Automatsko dodavanje potpisa "PyZ3R Edition" na slike pomoću `ImageDraw`.
+- [ ] **Distribucija (.EXE):** Pakiranje aplikacije s `PyInstaller` (jedna datoteka) za lako dijeljenje.
+- [ ] **UI Skaliranje:** Mogućnost promjene veličine sučelja (80%, 100%, 120%) za High DPI ekrane (inspirirano `complex_example.py`).
+- [x] **Napredna Navigacija:** Zamjena tabova s lijevim sidebarom za profesionalniji izgled.
 
 ---
 

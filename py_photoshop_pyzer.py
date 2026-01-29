@@ -95,6 +95,11 @@ class PhotoshopApp(ctk.CTk):
         # Učitaj ikone (PRIJE kreiranja UI-a!)
         self._load_icons()
 
+        # Varijable za Undo/Redo
+        self.history = []
+        self.redo_stack = []
+        self.max_history = 10
+
         self._create_ui()
 
         # Učitaj defaultnu sliku ako postoji
@@ -138,111 +143,175 @@ class PhotoshopApp(ctk.CTk):
                 print(f"Error loading icon {name}: {e}")
 
     def _create_ui(self):
-        """Kreira sve GUI elemente aplikacije."""
-        # === LIJEVI PANEL (Okvir za sliku) ===
+        """Kreira sve GUI elemente aplikacije (Sidebar Layout)."""
+        
+        # --- CONFIG GRID ---
+        self.grid_columnconfigure(0, weight=0) # Sidebar (fiksno)
+        self.grid_columnconfigure(1, weight=1) # Main (expand)
+        self.grid_rowconfigure(0, weight=1)
+        
+        # === 1. SIDEBAR (Lijevo) ===
+        self.sidebar_frame = ctk.CTkFrame(self, width=250, corner_radius=0)
+        self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
+        self.sidebar_frame.grid_rowconfigure(10, weight=1) # Spacer gura footer dolje
+
+        # Logo / Header
+        self.logo_label = ctk.CTkLabel(self.sidebar_frame, text="PyZ3R LAB", font=("Roboto", 24, "bold"), text_color="#3B8ED0")
+        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+
+        # Navigacijski gumbi
+        self.nav_buttons = {}
+        section_names = ["Glavno", "Edit", "Efekti", "Export", "Batch"]
+        
+        for i, name in enumerate(section_names):
+            btn = ctk.CTkButton(self.sidebar_frame, corner_radius=0, height=40, border_spacing=10, 
+                                text=name, fg_color="transparent", text_color=("gray10", "gray90"), 
+                                hover_color=("gray70", "gray30"), anchor="w", 
+                                command=lambda n=name: self.select_frame(n))
+            btn.grid(row=i+1, column=0, sticky="ew")
+            self.nav_buttons[name] = btn
+            
+        # Footer u Sidebar-u
+        self.appearance_mode_menu = ctk.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
+                                                      command=self.change_appearance_mode_event)
+        self.appearance_mode_menu.grid(row=11, column=0, padx=20, pady=10, sticky="s")
+        self.appearance_mode_menu.set("Dark")
+        
+        # ASCII ART Footer
+        self.lbl_ascii_footer = ctk.CTkLabel(self.sidebar_frame, text=self.ascii_signature_text,
+                                             font=("Courier", 6), text_color="#2CC985", justify="left")
+        self.lbl_ascii_footer.grid(row=12, column=0, padx=5, pady=(0, 10))
+
+
+        # === 2. MAIN AREA (Desno) ===
+        self.tools_container = ctk.CTkFrame(self.sidebar_frame, fg_color="transparent")
+        self.tools_container.grid(row=8, column=0, sticky="nsew", padx=10, pady=10)
+        self.sidebar_frame.grid_rowconfigure(8, weight=1) # Tools container expand
+
+        # Preview Frame (Desno)
         self.frm_preview = ctk.CTkFrame(self, fg_color="transparent")
-        self.frm_preview.grid(row=0, column=0, sticky="nsew", padx=15, pady=15)
+        self.frm_preview.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
         
-        self.lbl_image = ctk.CTkLabel(self.frm_preview, text="Povuci sliku ili klikni 'Otvori'...", font=("Roboto", 20))
+        self.lbl_image = ctk.CTkLabel(self.frm_preview, text="Dobrodošli u PyZ3R Lab v2.0", font=("Roboto", 24))
         self.lbl_image.pack(expand=True, fill="both")
-
-        # PROGRESS BAR (Inicijalno skriven) - Za async loading
+        
         self.progress_bar = ctk.CTkProgressBar(self.frm_preview, mode="indeterminate", width=400)
+
+        # Inicijalizacija Frameova za alate
+        self.frames = {}
+        for name in section_names:
+            frame = ctk.CTkScrollableFrame(self.tools_container, fg_color="transparent") 
+            self.frames[name] = frame
+            
+        # Pozivi setup funkcija
+        self._setup_frame_main(self.frames["Glavno"])
+        self._setup_frame_edit(self.frames["Edit"])
+        self._setup_frame_effects(self.frames["Efekti"])
+        self._setup_frame_export(self.frames["Export"])
+        self._setup_frame_batch(self.frames["Batch"])
+
+        # Odaberi prvi
+        self.select_frame("Glavno")
+
+    def select_frame(self, name):
+        for btn in self.nav_buttons.values():
+            btn.configure(fg_color="transparent")
+        self.nav_buttons[name].configure(fg_color=("gray75", "gray25"))
+        for frame in self.frames.values():
+            frame.pack_forget()
+        self.frames[name].pack(fill="both", expand=True)
+
+    def change_appearance_mode_event(self, new_appearance_mode):
+        ctk.set_appearance_mode(new_appearance_mode)
+
+    # --- IMPLEMENTACIJA NOVIH METODA ZA FRAMEOVE ---
+    def _setup_frame_main(self, parent):
+        undo_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        undo_frame.pack(fill="x", pady=(0, 10))
+        self.btn_undo = ctk.CTkButton(undo_frame, text="⟲", width=50, command=self.undo, state="disabled", fg_color="gray")
+        self.btn_undo.pack(side="left", padx=2, expand=True)
+        self.btn_redo = ctk.CTkButton(undo_frame, text="⟳", width=50, command=self.redo, state="disabled", fg_color="gray")
+        self.btn_redo.pack(side="right", padx=2, expand=True)
         
-        # === DESNI PANEL (Alati) ===
-        self.frm_tools = ctk.CTkFrame(self, width=300, corner_radius=15)
-        self.frm_tools.grid(row=0, column=1, sticky="nsew", padx=(0, 15), pady=15)
+        ctk.CTkButton(parent, text="📂 Otvori", command=self.open_file).pack(pady=5, fill="x")
+        ctk.CTkButton(parent, text="💾 Spremi", command=self.save_file, fg_color="green").pack(pady=5, fill="x")
+        ctk.CTkButton(parent, text="↺ Reset", command=self.reset_image, fg_color="#C0392B").pack(pady=5, fill="x")
         
-        # Naslov Alata
-        ctk.CTkLabel(self.frm_tools, text="Photo Editor", font=("Roboto", 24, "bold"), text_color="#3B8ED0").pack(pady=(20, 10))
+        ctk.CTkLabel(parent, text="--- INFO ---", font=("Roboto", 10)).pack(pady=10)
+        self.lbl_info = ctk.CTkLabel(parent, text="", justify="left", font=("Consolas", 10), wraplength=200)
+        self.lbl_info.pack(anchor="w")
 
-        # TABS (Kartice)
-        self.tabs = ctk.CTkTabview(self.frm_tools)
-        self.tabs.pack(fill="both", expand=True, padx=15, pady=10)
-        self.tabs.add("Glavno")
-        self.tabs.add("Edit")
-        self.tabs.add("Efekti")
-
-        self._setup_tab_main()
-        self._setup_tab_edit()
-        self._setup_tab_effects()
-
-        # Footer
-        ctk.CTkLabel(self.frm_tools, text="Dev: PyZ3R © 2026", font=("Roboto", 9), text_color="gray").pack(side="bottom", pady=(0, 15))
-        
-        # ASCII ART U GUI-u (Monospaced font)
-        self.lbl_ascii_footer = ctk.CTkLabel(self.frm_tools, 
-                                             text=self.ascii_signature_text,
-                                             font=("Courier", 8, "bold"),
-                                             text_color="#2CC985",
-                                             justify="center")
-        self.lbl_ascii_footer.pack(side="bottom", pady=(10, 0))
-
-    def _setup_tab_main(self):
-        """Postavlja elemente na tabu 'Glavno'."""
-        tab = self.tabs.tab("Glavno")
-        btn_frame = ctk.CTkFrame(tab, fg_color="transparent")
-        btn_frame.pack(fill="x", pady=10)
-
-        # Dohvati ikone sigurno (get vraca None ako nema kljuca, ali CTkButton handlea image=None ok, samo nema slike)
-        icon_open = self.icons.get("folder_open")
-        icon_save = self.icons.get("save")
-        icon_reset = self.icons.get("refresh")
-
-        ctk.CTkButton(btn_frame, text="Otvori", image=icon_open, command=self.open_file, height=40).pack(side="left", padx=5, expand=True, fill="x")
-        ctk.CTkButton(btn_frame, text="Spremi", image=icon_save, command=self.save_file, fg_color="green", height=40).pack(side="left", padx=5, expand=True, fill="x")
-        ctk.CTkButton(btn_frame, text="Reset", image=icon_reset, command=self.reset_image, fg_color="#C0392B", height=40).pack(side="left", padx=5, expand=True, fill="x")
-        
-
-        # Separator (kao <hr>)
-        ctk.CTkFrame(tab, height=2, fg_color=("gray70", "gray30")).pack(fill="x", padx=10, pady=20)
-        
-        self.switch_mode = ctk.CTkSwitch(tab, text="Dark Mode", command=self.toggle_mode)
-        self.switch_mode.select()
-        self.switch_mode.pack(pady=10)
-        
-        # Info labela - Centrirana i podebljana
-        self.lbl_info = ctk.CTkLabel(tab, text="", justify="center", font=("Roboto", 13, "bold"))
-        self.lbl_info.pack(pady=10)
-
-    def _setup_tab_edit(self):
-        """Postavlja elemente na tabu 'Edit'."""
-        tab = self.tabs.tab("Edit")
-        ctk.CTkLabel(tab, text="Rotacija", font=("Roboto", 14, "bold")).pack(pady=(15, 5))
-        
-        rot_frame = ctk.CTkFrame(tab, fg_color="transparent")
+    def _setup_frame_edit(self, parent):
+        ctk.CTkLabel(parent, text="Rotacija", font=("Roboto", 14, "bold")).pack(pady=(10, 5))
+        rot_frame = ctk.CTkFrame(parent, fg_color="transparent")
         rot_frame.pack(fill="x")
-        
-        icon_left = self.icons.get("rotate_left")
-        icon_right = self.icons.get("rotate_right")
-        icon_flip = self.icons.get("swap_horiz")
+        ctk.CTkButton(rot_frame, text="⟲", width=60, command=lambda: self.rotate("left")).pack(side="left", padx=2, expand=True)
+        ctk.CTkButton(rot_frame, text="⟳", width=60, command=lambda: self.rotate("right")).pack(side="right", padx=2, expand=True)
+        ctk.CTkButton(parent, text="↔ Zrcali", command=self.flip_horizontal).pack(fill="x", pady=10)
 
-        ctk.CTkButton(rot_frame, text="Lijevo", image=icon_left, width=80, command=lambda: self.rotate("left")).pack(side="left", padx=5, expand=True)
-        ctk.CTkButton(rot_frame, text="Desno", image=icon_right, width=80, command=lambda: self.rotate("right")).pack(side="right", padx=5, expand=True)
-
-        ctk.CTkLabel(tab, text="Zrcaljenje", font=("Roboto", 14, "bold")).pack(pady=(20, 5))
-        ctk.CTkButton(tab, text="Zrcali Vodoravno", image=icon_flip, command=self.flip_horizontal).pack(fill="x")
-
-    def _setup_tab_effects(self):
-        """Postavlja elemente na tabu 'Efekti'."""
-        tab = self.tabs.tab("Efekti")
-        
-        ctk.CTkLabel(tab, text="Odaberi Filter:", font=("Roboto", 14)).pack(pady=(10, 5))
+    def _setup_frame_effects(self, parent):
+        ctk.CTkLabel(parent, text="Filteri", font=("Roboto", 14, "bold")).pack(pady=(10, 5))
         self.filter_var = ctk.StringVar(value="Bez Filtera")
-        ctk.CTkOptionMenu(tab, 
-                          values=["Bez Filtera", "Crno-Bijelo", "Zamućenje (Blur)", "Konture", "Reljef (Emboss)", "Izoštravanje"],
-                          variable=self.filter_var, 
-                          command=self.apply_filter).pack(fill="x", pady=5)
+        ctk.CTkOptionMenu(parent, values=["Bez Filtera", "Crno-Bijelo", "Zamućenje (Blur)", "Konture", "Reljef (Emboss)", "Izoštravanje"],
+                          variable=self.filter_var, command=self.apply_filter).pack(fill="x", pady=5)
         
-        ctk.CTkLabel(tab, text="Svjetlina (Brightness)", font=("Roboto", 12)).pack(pady=(20, 0))
-        self.slider_bright = ctk.CTkSlider(tab, from_=0.1, to=2.0, command=self.update_enhancements)
+        ctk.CTkLabel(parent, text="Svjetlina", font=("Roboto", 12)).pack(pady=(15, 0))
+        self.slider_bright = ctk.CTkSlider(parent, from_=0.1, to=2.0, command=self.update_enhancements)
         self.slider_bright.set(1.0)
         self.slider_bright.pack(fill="x", pady=5)
-
-        ctk.CTkLabel(tab, text="Kontrast (Contrast)", font=("Roboto", 12)).pack(pady=(10, 0))
-        self.slider_contrast = ctk.CTkSlider(tab, from_=0.1, to=2.0, command=self.update_enhancements)
+        
+        ctk.CTkLabel(parent, text="Kontrast", font=("Roboto", 12)).pack(pady=(10, 0))
+        self.slider_contrast = ctk.CTkSlider(parent, from_=0.1, to=2.0, command=self.update_enhancements)
         self.slider_contrast.set(1.0)
         self.slider_contrast.pack(fill="x", pady=5)
+
+    def _setup_frame_export(self, parent):
+        ctk.CTkLabel(parent, text="WebP Export", font=("Roboto", 14, "bold")).pack(pady=(10, 5))
+        self.slider_quality = ctk.CTkSlider(parent, from_=1, to=100, number_of_steps=100)
+        self.slider_quality.set(80)
+        self.slider_quality.pack(fill="x", pady=5)
+        self.lbl_quality_val = ctk.CTkLabel(parent, text="Kvaliteta: 80")
+        self.lbl_quality_val.pack()
+        self.slider_quality.configure(command=lambda val: self.lbl_quality_val.configure(text=f"Kvaliteta: {int(val)}"))
+        
+        ctk.CTkButton(parent, text="Konvertiraj", command=self.save_as_webp, fg_color="#D35400").pack(fill="x", pady=10)
+        self.lbl_savings = ctk.CTkLabel(parent, text="", text_color="gray", wraplength=200)
+        self.lbl_savings.pack(pady=5)
+        
+    def save_as_webp(self):
+        if not self.processed_image:
+            messagebox.showwarning("Upozorenje", "Nema slike za optimizaciju!")
+            return
+        file_path = filedialog.asksaveasfilename(defaultextension=".webp",filetypes=[("WebP Image", "*.webp")])
+        if file_path:
+            try:
+                quality_val = int(self.slider_quality.get())
+                self.processed_image.save(file_path, "WEBP", quality=quality_val)
+                original_size = os.path.getsize(self.file_path) if self.file_path and os.path.exists(self.file_path) else 0
+                new_size = os.path.getsize(file_path)
+                msg = f"Spremljeno! Size: {new_size/1024:.1f} KB"
+                self.lbl_savings.configure(text=msg, text_color="#2CC985")
+            except Exception as e:
+                messagebox.showerror("Greška", str(e))
+
+    def _setup_frame_batch(self, parent):
+        ctk.CTkLabel(parent, text="Batch", font=("Roboto", 14, "bold")).pack(pady=(10, 5))
+        self.batch_input_path = ctk.StringVar()
+        ctk.CTkButton(parent, text="Odaberi Mapu", command=self.select_batch_input).pack(fill="x", pady=5)
+        ctk.CTkEntry(parent, textvariable=self.batch_input_path, placeholder_text="Putanja...").pack(fill="x", pady=5)
+        
+        self.batch_resize_var = ctk.BooleanVar(value=True)
+        ctk.CTkCheckBox(parent, text="Resize (2000px)", variable=self.batch_resize_var).pack(pady=10, anchor="w")
+        self.batch_format_var = ctk.StringVar(value="WebP")
+        ctk.CTkOptionMenu(parent, values=["WebP", "JPEG", "PNG"], variable=self.batch_format_var).pack(fill="x", pady=5)
+        
+        ctk.CTkButton(parent, text="Pokreni", command=self.run_batch_processing, fg_color="#E74C3C").pack(fill="x", pady=15)
+        self.batch_progress = ctk.CTkProgressBar(parent)
+        self.batch_progress.set(0)
+        self.batch_progress.pack(fill="x", pady=5)
+        self.lbl_batch_status = ctk.CTkLabel(parent, text="", wraplength=200)
+        self.lbl_batch_status.pack()
+
 
     # =========================================================================
     # --- ASINKRONO UČITAVANJE SLIKE (THREADING) ---
@@ -343,13 +412,38 @@ class PhotoshopApp(ctk.CTk):
         """Ažurira tekstualne podatke o slici."""
         if self.processed_image:
             filename = os.path.basename(self.file_path)
-            self.lbl_info.configure(text=f"Datoteka: {filename}\nRezolucija: {self.processed_image.size}")
+            filename = os.path.basename(self.file_path)
+            # Prikazujemo i veličinu datoteke u MB
+            if os.path.exists(self.file_path):
+                size_mb = os.path.getsize(self.file_path) / (1024 * 1024)
+                size_txt = f"{size_mb:.2f} MB"
+            else:
+                size_txt = "N/A"
+            self.lbl_info.configure(text=f"Datoteka: {filename}\nRezolucija: {self.processed_image.size}\nVeličina: {size_txt}")
 
     def reset_controls(self):
         """Resetira slidere i filtere na početne vrijednosti."""
         self.slider_bright.set(1.0)
         self.slider_contrast.set(1.0)
         self.filter_var.set("Bez Filtera")
+        if hasattr(self, 'lbl_savings'):
+             self.lbl_savings.configure(text="Rezultat: N/A", text_color="gray")
+
+    # CLEANUP: Uklonjena stara definicija _setup_tab_export i _setup_tab_batch ako postoje dolje
+    # U prethodnom koraku smo već definirali _setup_frame_export i _setup_frame_batch.
+    # Provjeravamo da nema duplikata.
+    
+    # Dodajemo metodu za update Undo/Redo koja je obrisana greškom
+    def _update_undo_redo_buttons(self):
+        """Omogućuje/onemogućuje Undo/Redo gumbe ovisno o stanju stacka."""
+        if hasattr(self, 'btn_undo'):
+            state_undo = "normal" if self.history else "disabled"
+            self.btn_undo.configure(state=state_undo)
+            
+        if hasattr(self, 'btn_redo'):
+            state_redo = "normal" if self.redo_stack else "disabled"
+            self.btn_redo.configure(state=state_redo)
+
 
     # --- AKCIJE (Callbacks) ---
 
@@ -374,8 +468,36 @@ class PhotoshopApp(ctk.CTk):
         mode = "Dark" if ctk.get_appearance_mode() == "Light" else "Light"
         ctk.set_appearance_mode(mode)
 
+    # --- UNDO / REDO LOGIKA ---
+    
+    def save_state(self):
+        """Spremi trenutnu sliku u povijest PRIJE promjene."""
+        if self.processed_image:
+            self.history.append(self.processed_image.copy())
+            if len(self.history) > self.max_history:
+                self.history.pop(0) 
+            self.redo_stack.clear() 
+            self._update_undo_redo_buttons()
+
+    def undo(self):
+        if self.history:
+            self.redo_stack.append(self.processed_image.copy())
+            self.processed_image = self.history.pop()
+            self._update_display()
+            self._update_info()
+            self._update_undo_redo_buttons()
+    
+    def redo(self):
+        if self.redo_stack:
+            self.history.append(self.processed_image.copy())
+            self.processed_image = self.redo_stack.pop()
+            self._update_display()
+            self._update_info()
+            self._update_undo_redo_buttons()
+
     def rotate(self, direction):
         if self.processed_image:
+            self.save_state()
             angle = 90 if direction == "left" else -90
             self.processed_image = self.processed_image.rotate(angle, expand=True)
             self._update_display()
@@ -383,15 +505,16 @@ class PhotoshopApp(ctk.CTk):
 
     def flip_horizontal(self):
         if self.processed_image:
+            self.save_state()
             self.processed_image = ImageOps.mirror(self.processed_image)
             self._update_display()
 
     def apply_filter(self, choice):
-        if not self.original_image:
+        if not self.processed_image:
             return
-        
-        # Uvijek krećemo od originala kad mijenjamo filter
-        img = self.original_image.copy()
+        # Filteri
+        self.save_state()
+        img = self.processed_image.copy()
         
         if choice == "Crno-Bijelo":
             img = ImageOps.grayscale(img).convert("RGB")
@@ -406,9 +529,9 @@ class PhotoshopApp(ctk.CTk):
         
         self.processed_image = img
         self.update_enhancements(None)
+        self._update_display()
 
     def update_enhancements(self, _):
-        """Primjenjuje promjene svjetline i kontrasta na trenutnu sliku."""
         if not self.processed_image:
             return
         
@@ -418,13 +541,90 @@ class PhotoshopApp(ctk.CTk):
         enhancer = ImageEnhance.Contrast(img)
         img = enhancer.enhance(self.slider_contrast.get())
         
-        # Prikaz (display)
         display_w = self.frm_preview.winfo_width() if self.frm_preview.winfo_width() > 100 else 800
-        # Izracunaj novi height na brzinu
-        target_h = int(display_w / (img.width / img.height))
+        if img.height > 0:
+            target_h = int(display_w / (img.width / img.height))
+            self.current_image = ctk.CTkImage(img, size=(display_w, target_h))
+            self.lbl_image.configure(image=self.current_image)
+
+    # --- BATCH CALLBACKS ---
+    def select_batch_input(self):
+        path = filedialog.askdirectory()
+        if path:
+            self.batch_input_path.set(path)
+
+    def run_batch_processing(self):
+        input_dir = self.batch_input_path.get()
+        if not input_dir or not os.path.exists(input_dir):
+            messagebox.showwarning("Greška", "Odaberi valjanu izvornu mapu!")
+            return
+        threading.Thread(target=self._batch_worker, args=(input_dir,), daemon=True).start()
+
+    def _batch_worker(self, input_dir):
+        output_dir = os.path.join(input_dir, "Processed")
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            
+        target_format = self.batch_format_var.get()
+        resize = self.batch_resize_var.get()
         
-        self.current_image = ctk.CTkImage(img, size=(display_w, target_h))
-        self.lbl_image.configure(image=self.current_image)
+        supported = (".jpg", ".jpeg", ".png", ".webp", ".bmp")
+        files = [f for f in os.listdir(input_dir) if f.lower().endswith(supported)]
+        total = len(files)
+        
+        if total == 0:
+            self.lbl_batch_status.configure(text="Nema slika u mapi!")
+            return
+            
+        processed_count = 0
+        total_saved_bytes = 0
+        self.lbl_batch_status.configure(text=f"Obrađujem {total} slika...")
+        
+        try:
+            for idx, filename in enumerate(files):
+                img_path = os.path.join(input_dir, filename)
+                img = Image.open(img_path)
+                
+                if resize:
+                    MAX = 2000
+                    if img.width > MAX or img.height > MAX:
+                        img.thumbnail((MAX, MAX), Image.Resampling.LANCZOS)
+                
+                new_filename = os.path.splitext(filename)[0]
+                save_kwargs = {}
+                ext = ".png" # default
+                
+                if target_format == "WebP":
+                    ext = ".webp"
+                    save_kwargs = {"quality": 80, "method": 6}
+                elif target_format == "JPEG":
+                    ext = ".jpg"
+                    img = img.convert("RGB")
+                    save_kwargs = {"quality": 85}
+                else:
+                    ext = ".png"
+                    save_kwargs = {"optimize": True}
+                
+                out_path = os.path.join(output_dir, new_filename + ext)
+                img.save(out_path, **save_kwargs)
+                
+                orig_size = os.path.getsize(img_path)
+                new_size = os.path.getsize(out_path)
+                total_saved_bytes += (orig_size - new_size)
+                
+                processed_count += 1
+                progress = processed_count / total
+                self.batch_progress.set(progress)
+                self.lbl_batch_status.configure(text=f"Obrađeno: {processed_count}/{total}")
+                
+            saved_mb = total_saved_bytes / (1024 * 1024)
+            msg = f"Gotovo! Obrađeno {total} slika.\nUšteda prostora: {saved_mb:.2f} MB"
+            self.lbl_batch_status.configure(text=msg, text_color="#2CC985")
+            messagebox.showinfo("Batch Gotov", msg)
+            
+        except Exception as e:
+            self.lbl_batch_status.configure(text=f"Greška: {str(e)}", text_color="red")
+            print(f"Batch Error: {e}")
 
 
 if __name__ == "__main__":
