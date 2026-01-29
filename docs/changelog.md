@@ -5,13 +5,14 @@
 - **EXE Kompletno Ispravan:** Riješeni SVI problemi s .EXE datotekom:
   - ✅ Fix: `ModuleNotFoundError: No module named '_tkinter'` - Dodana `--collect-all tkinter` i `--add-binary _tkinter.pyd` u PyInstaller build
   - ✅ Fix: `FileNotFoundError: Tcl data directory not found` - Tcl/Tk resursi se sada pravilno pakiraju
+  - ✅ Fix: `ModuleNotFoundError: No module named 'pyfiglet.fonts'` - Dodana `--collect-all pyfiglet` za ASCII art fontove
   - ✅ Fix: Problemi s učitavanjem slika u EXE - Implementirana `resource_path()` funkcija za dinamičko pronalaženje resursa
 - **GitIgnore:** Dodani PyInstaller artifakti (`build/`, `dist/`, `*.spec`) u `.gitignore` kako bi se spriječio rast repozitorija
 - **Dokumentacija:** Dodan `README.md` s uputama za pokretanje aplikacije
 
 ### 📦 Build Naredba (RADNA)
 ```bash
-.\venv\Scripts\pyinstaller.exe --name "PyZeR_Photoshop" --onefile --noconsole --add-data "images;images" --collect-all customtkinter --collect-all tkinter --add-binary "C:\Users\z3r1x\AppData\Local\Programs\Python\Python313\DLLs\_tkinter.pyd;." py_photoshop_pyzer.py
+.\venv\Scripts\pyinstaller.exe --name "PyZeR_Photoshop_v2.1" --onefile --noconsole --add-data "images;images" --collect-all customtkinter --collect-all tkinter --collect-all pyfiglet --add-binary "C:\Users\z3r1x\AppData\Local\Programs\Python\Python313\DLLs\_tkinter.pyd;." py_photoshop_pyzer.py
 ```
 
 ## [v2.0] - 2026-01-29

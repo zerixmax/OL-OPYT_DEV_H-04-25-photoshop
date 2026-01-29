@@ -50,19 +50,20 @@ Remove-Item -Recurse -Force build, dist
 **RADNA NAREDBA (testirano i potvrđeno):**
 
 ```bash
-.\venv\Scripts\pyinstaller.exe --name "PyZeR_Photoshop" --onefile --noconsole --add-data "images;images" --collect-all customtkinter --collect-all tkinter --add-binary "C:\Users\z3r1x\AppData\Local\Programs\Python\Python313\DLLs\_tkinter.pyd;." py_photoshop_pyzer.py
+.\venv\Scripts\pyinstaller.exe --name "PyZeR_Photoshop_v2.1" --onefile --noconsole --add-data "images;images" --collect-all customtkinter --collect-all tkinter --collect-all pyfiglet --add-binary "C:\Users\z3r1x\AppData\Local\Programs\Python\Python313\DLLs\_tkinter.pyd;." py_photoshop_pyzer.py
 ```
 
 ### Objašnjenje Parametara:
 
 | Parametar | Opis |
 |-----------|------|
-| `--name "PyZeR_Photoshop"` | Ime finalne EXE datoteke |
+| `--name "PyZeR_Photoshop_v2.1"` | Ime finalne EXE datoteke |
 | `--onefile` | Sve pakira u JEDНУ datoteku |
 | `--noconsole` | Skriva crni CMD prozor (windowed app) |
 | `--add-data "images;images"` | Pakira `images/` folder u EXE |
 | `--collect-all customtkinter` | Uzima SVE customtkinter resurse (JSON, teme) |
 | `--collect-all tkinter` | Uzima SVE Tcl/Tk data (kritično!) |
+| `--collect-all pyfiglet` | Uzima sve pyfiglet fontove za ASCII art |
 | `--add-binary "_tkinter.pyd;."` | Eksplicitno dodaje _tkinter C modul |
 
 ### Korak 4: Testiraj EXE
@@ -105,6 +106,10 @@ I **pročitaj grešku** koja se ispiše u konzoli.
 ### 4. EXE se pokrene ali puca kod učitavanja slike
 **Razlog:** `resource_path()` funkcija nije implementirana.
 **Rješenje:** Dodaj funkciju iz Koraka 1
+
+### 5. `ModuleNotFoundError: No module named 'pyfiglet.fonts'`
+**Razlog:** Pyfiglet fontovi nisu uključeni u build (potrebni za ASCII art).
+**Rješenje:** Dodaj `--collect-all pyfiglet` u PyInstaller naredbu
 
 ## 📦 Finalni Output
 
