@@ -35,7 +35,7 @@ Aplikacija je kompletirana, lokalizirana, vizualno polirana i koristi asinkrono 
 
 ### 3. Ideje za Version 2.0 (The "Pro" Update)
 - [x] **Watermark (Vodeni Žig):** Automatsko dodavanje potpisa "PyZ3R Edition" na slike pomoću `ImageDraw`.
-- [x] **Distribucija (.EXE):** Pakiranje aplikacije s `PyInstaller` (jedna datoteka) za lako dijeljenje. *(Napomena: Trenutno postoji bug s pokretanjem. Work in progress.)*
+- [x] **Distribucija (.EXE):** Pakiranje aplikacije s `PyInstaller` (jedna datoteka). Ispravljeni problemi s putanjama i `customtkinter` dependencijem.
 - [x] **UI Skaliranje:** Mogućnost promjene veličine sučelja (80%, 100%, 120%) za High DPI ekrane (inspirirano `complex_example.py`).
 - [x] **Napredna Navigacija:** Zamjena tabova s lijevim sidebarom za profesionalniji izgled.
 

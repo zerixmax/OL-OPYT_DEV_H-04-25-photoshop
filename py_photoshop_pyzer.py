@@ -16,6 +16,16 @@ from tkinter import filedialog, messagebox
 import customtkinter as ctk
 from PIL import Image, ImageTk, ImageOps, ImageEnhance, ImageFilter, ImageDraw, ImageFont
 
+def resource_path(relative_path):
+    """ Vraća apsolutnu putanju do resursa, radi i za DEV i za PyInstaller EXE """
+    try:
+        # PyInstaller stvara privremenu mapu i sprema putanju u _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 # --- FIX: Windows Tcl/Tk Environment ---
 # Automatski postavlja putanje do Tcl/Tk biblioteka na Windowsima kako bi se izbjegao "TclError"
 if sys.platform == "win32":
@@ -103,7 +113,9 @@ class PhotoshopApp(ctk.CTk):
         self._create_ui()
 
         # Učitaj defaultnu sliku ako postoji
-        default_img = './images/IMG_0630.JPG'
+        # Učitaj defaultnu sliku ako postoji
+        # KORISTIMO resource_path ZBOG EXE DATOTEKE
+        default_img = resource_path(os.path.join('images', 'IMG_0630.JPG'))
         if os.path.exists(default_img):
             self.load_image_async(default_img)
 

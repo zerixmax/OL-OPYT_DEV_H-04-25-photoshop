@@ -1,81 +1,31 @@
-# 🎨 Algebra Python Photoshop - PyZ3R Edition 2026
+# Kako pokrenuti PyZ3R Photoshop
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![Edition](https://img.shields.io/badge/Edition-PyZ3R%202026-00ff00)
-![Status](https://img.shields.io/badge/Status-Exam%20Ready-success)
+## Pokretanje iz izvornog koda (PREPORUČENO)
 
-Napredna desktop aplikacija za obradu fotografija razvijena u sklopu **Algebra Python Developer** programa.
-
-Ova verzija (**PyZ3R Edition**) predstavlja potpunu modernizaciju originalne skripte, prebacujući je u **Objektno Orijentirani (OOP)** kod s modernim **CustomTkinter** sučeljem.
-
-## ✨ Ključne Značajke
-
-### 1. Moderno UI Sučelje (CustomTkinter)
-* **Dark/Light Mode:** Ugrađena podrška za teme (default: Dark Blue).
-* **Tabovi (Tabview):** Alati su organizirani u logičke cjeline ("Datoteka", "Uređivanje", "Efekti") radi preglednosti.
-* **Ikone:** Korištenje intuitivnih Material Design ikona umjesto tekstualnih gumba.
-* **Responzivnost:** Sučelje se prilagođava veličini prozora.
-
-### 2. Napredna Obrada Slika (Pillow)
-* **Rotacija:** Mogućnost rotiranja slike za 90° u oba smjera.
-* **Zrcaljenje:** Horizontalni flip.
-* **Filteri:** Implementirani Pillow filteri: *Blur, Contour, Emboss, Sharpen, Black & White*.
-* **Live Enhancements:** Klizači (Sliders) za podešavanje svjetline (Brightness) i kontrasta u stvarnom vremenu.
-
-### 3. 🧠 Pametna Logika 
-
-Implementirana je ključna logika za optimizaciju učitavanja slika:
-* Aplikacija provjerava širinu slike pri učitavanju.
-* **IF uvjet:** `if img.width > 2000:` -> Slika se automatski smanjuje (resize) uz zadržavanje omjera (aspect ratio) koristeći `LANCZOS` filter za kvalitetu.
-* **ELSE:** Ako je slika manja, ostaje u originalnoj rezoluciji.
-
-### 4. Custom Branding (PyZ3R)
-* Integriran **ASCII Art potpis** pri pokretanju aplikacije.
-* Koristi biblioteke `pyfiglet` i `colorama` za ispis logotipa **"PyZ3R"** u zelenoj boji u konzoli.
-
-```text
-   ___      _____ _____ ___ 
-  / _ \_   |__  /|___ /| _ \
- / /_)/ | | |/ /   |_ \|   /
-/ ___/| |_| / /___ ___) |_\ \
-\/     \__, /____/|____/|_\_\
-       |___/                 
-```
-
-## 🛠️ Instalacija i Pokretanje
-
-Projekt zahtijeva Python 3.10+ i nekoliko vanjskih biblioteka.
-
-### 1. Kloniranje i Priprema
+1. Kloniraj repozitorij:
 ```bash
 git clone https://github.com/zerixmax/OL-OPYT_DEV_H-04-25-photoshop.git
 cd OL-OPYT_DEV_H-04-25-photoshop
-python -m venv venv
 ```
 
-### 2. Aktivacija Virtualnog Okruženja
-* **Windows:** `.\venv\Scripts\activate`
-* **Mac/Linux:** `source venv/bin/activate`
-
-### 3. Instalacija Paketa
+2. Aktiviraj virtualno okruženje:
 ```bash
-pip install customtkinter Pillow pyfiglet colorama
+venv\Scripts\activate
 ```
 
-### 4. Pokretanje Aplikacije
+3. Pokreni aplikaciju:
 ```bash
 python py_photoshop_pyzer.py
 ```
 
-## 📂 Struktura Koda
-* `py_photoshop_pyzer.py` - Glavna izvršna datoteka (sadrži App klasu).
-* `images/` - Mapa za testne slike.
-* `images/icons/` - Mapa s ikonicama za GUI (Light i Dark mode verzije).
-* `docs/` - Dokumentacija razvoja (changelog, status implementacije).
-* `README.md` - Dokumentacija projekta.
+## Problemi s EXE verzijom
 
-## 👨💻 Autor
-Created by PyZ3R @ Algebra 2026. Based on concepts from Algebra Python Developer modules.
+Trenutno postoji problem s Microsoft Store verzijom Pythona i PyInstaller-om koji uzrokuje `ModuleNotFoundError: No module named '_tkinter'` grešku.
 
-## 💡 Inspiracija
-* **CustomTkinter**: [TomSchimansky/CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) - Moderni UI framework za Python.
+**Rješenje:** Koristi izvorni kod kao što je opisano gore. Aplikacija će raditi savršeno!
+
+## Systemski zahtjevi
+
+- Python 3.13+
+- Windows 10/11
+- Instaliran Tcl/Tk (dolazi s standardnom Python instalacijom)

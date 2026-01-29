@@ -8,7 +8,7 @@
 - **Watermark (NOVO):** Dodan gumb za automatsko dodavanje "PyZ3R Edition" potpisa na slike.
 - **UI Scaling (NOVO):** Mogućnost skaliranja sučelja (80-120%) za prilagodbu različitim ekranima.
 - **Standalone EXE:** Aplikacija je kompajlirana u jednu .EXE datoteku za jednostavnu distribuciju.
-  > **NAPOMENA:** U ovoj verziji (v2.0) prijavljen je problem s pokretanjem .EXE datoteke. Preporučuje se pokretanje iz izvornog koda (`python py_photoshop_pyzer.py`) dok se problem ne otkloni.
+  - **FIX:** Riješen problem s `ModuleNotFoundError: customtkinter` i učitavanjem resursa (`resource_path`). EXE je sada potpuno funkcionalan.
 
 ## [v1.7] - 2026-01-29
 ### Promjene
